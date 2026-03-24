@@ -1,49 +1,182 @@
 openapi: 3.0.3
+
 info:
-  title: MVP Billing Health Monitor
+  title: Monitor de Salud de Facturación Regional
+  description: |
+    API para supervisar en tiempo real el estado operativo de los nodos 
+    de facturación electrónica en Centroamérica y República Dominicana.
+    
+    **Países cubiertos:** GT, SV, CR, PA, DO  
+    **Estados posibles:** OK · WARN · CRITICAL
   version: 1.0.0
+  contact:
+    name: Equipo de Plataforma
+    email: plataforma@empresa.com
+
+servers:
+  - url: http://localhost:8080
+    description: Desarrollo local
+  - url: https://api.monitoreo.empresa.com
+    description: Producción
+
+tags:
+  - name: Ingesta
+    description: Recepción de reportes desde los nodos regionales
+  - name: Consulta
+    description: Consulta del estado consolidado por país
+
 paths:
-  /api/v1/health-reports:
+  /api/v1/reportes-salud:
     post:
       summary: Recibir reporte de salud de un nodo regional
+      description: |
+        Endpoint consumido por cada nodo de facturación para reportar 
+        su estado actual. El sistema evalúa el reporte y determina 
+        automáticamente el estado OK, WARN o CRITICAL.
+      operationId: recibirReporteSalud
       tags: [Ingesta]
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/HealthReport'
+              $ref: '#/components/schemas/ReporteSalud'
+            example:
+              pais: GT
+              ente_tributario_activo: true
+              latencia_ms: 320
+              documentos_pendientes: 5
       responses:
         '202':
-          description: Reporte recibido y procesado
+          description: Reporte recibido y procesado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RespuestaIngesta'
+        '400':
+          description: Payload malformado o campos faltantes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Datos semánticamente inválidos (ej. latencia negativa)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
-  /api/v1/regional-status:
+  /api/v1/estado-regional:
     get:
-      summary: Obtener el estado actual de toda la región (CA + RD)
+      summary: Obtener el estado actual de toda la región
+      description: |
+        Retorna el último estado conocido de cada país. 
+        Útil para dashboards y alertas consolidadas.
+      operationId: obtenerEstadoRegional
       tags: [Consulta]
       responses:
         '200':
-          description: Listado de salud por país
+          description: Estado de salud por país
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CountryHealth'
+                  $ref: '#/components/schemas/SaludPais'
+              example:
+                - pais: GT
+                  estado: OK
+                  ultima_actualizacion: "2025-01-15T10:30:00Z"
+                - pais: SV
+                  estado: WARN
+                  ultima_actualizacion: "2025-01-15T10:28:00Z"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   schemas:
-    HealthReport:
-      type: object
-      required: [country, isTaxAuthorityUp, latencyMs, pendingDocs]
-      properties:
-        country: { type: string, enum: [GT, SV, HN, NI, CR, PA, DO] }
-        isTaxAuthorityUp: { type: boolean }
-        latencyMs: { type: integer }
-        pendingDocs: { type: integer }
 
-    CountryHealth:
+    ReporteSalud:
       type: object
+      description: Payload enviado por un nodo regional para reportar su estado
+      required: [pais, ente_tributario_activo, latencia_ms, documentos_pendientes]
       properties:
-        country: { type: string }
-        status: { type: string, enum: [OK, WARN, CRITICAL] }
-        lastUpdate: { type: string, format: date-time }
+        pais:
+          type: string
+          enum: [GT, SV, CR, PA, DO]
+          description: Código ISO del país del nodo que reporta
+        ente_tributario_activo:
+          type: boolean
+          description: Indica si la conexión con el ente tributario (SAT, DGII, etc.) está operativa
+        latencia_ms:
+          type: integer
+          minimum: 0
+          description: Latencia de respuesta del ente tributario en milisegundos
+          example: 320
+        documentos_pendientes:
+          type: integer
+          minimum: 0
+          description: Cantidad de documentos fiscales en cola pendientes de envío
+          example: 5
+
+    SaludPais:
+      type: object
+      description: Estado consolidado de salud de un país en un momento dado
+      properties:
+        pais:
+          type: string
+          enum: [GT, SV, CR, PA, DO]
+          description: Código ISO del país
+        estado:
+          type: string
+          enum: [OK, WARN, CRITICAL]
+          description: |
+            Estado calculado por el motor de reglas:
+            - OK: todo operativo
+            - WARN: degradación detectada, requiere atención
+            - CRITICAL: fallo crítico, intervención inmediata
+        ultima_actualizacion:
+          type: string
+          format: date-time
+          description: Timestamp del último reporte procesado para este país
+
+    RespuestaIngesta:
+      type: object
+      description: Confirmación de recepción del reporte
+      properties:
+        mensaje:
+          type: string
+          example: Reporte procesado correctamente
+        estado_calculado:
+          type: string
+          enum: [OK, WARN, CRITICAL]
+          description: Estado determinado por el motor de reglas tras procesar el reporte
+        pais:
+          type: string
+          enum: [GT, SV, CR, PA, DO]
+
+    Error:
+      type: object
+      description: Estructura estándar de error para todas las respuestas de fallo
+      properties:
+        codigo:
+          type: string
+          description: Código interno del error
+          example: PAYLOAD_INVALIDO
+        mensaje:
+          type: string
+          description: Descripción legible del error
+          example: El campo latencia_ms no puede ser negativo
+        timestamp:
+          type: string
+          format: date-time
