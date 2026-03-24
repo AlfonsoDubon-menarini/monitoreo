@@ -1,0 +1,54 @@
+openapi: 3.0.3
+info:
+  title: Central Monitoring System - Regional Billing
+  description: Monitoreo de salud de sistemas de facturación (CA & RD).
+  version: 1.0.0
+paths:
+  /systems/health:
+    get:
+      summary: Obtener el estado de salud de todos los nodos regionales
+      tags: [Monitoring]
+      responses:
+        '200':
+          description: Lista de estados por país
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SystemHealth'
+  /systems/{country}/report:
+    post:
+      summary: Reportar métricas de salud desde un nodo regional
+      parameters:
+        - name: country
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [GT, SV, HN, NI, CR, PA, DO]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthReport'
+      responses:
+        '202':
+          description: Reporte recibido
+
+components:
+  schemas:
+    SystemHealth:
+      type: object
+      properties:
+        country: { type: string }
+        status: { type: string, enum: [OK, WARN, CRITICAL] }
+        lastCheck: { type: string, format: date-time }
+    HealthReport:
+      type: object
+      required: [serviceName, status]
+      properties:
+        serviceName: { type: string, example: "FirmaDigital-Service" }
+        status: { type: string, enum: [UP, DOWN] }
+        latencyMs: { type: integer }
+        pendingDocuments: { type: integer }
