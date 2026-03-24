@@ -1,0 +1,10 @@
+[33m20d3920[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/setup-project-structure[m[33m)[m feat(infrastructure): add REST controller, JPA repository, entity and bean config
+[33mdb85815[m feat(application): add use case, ports and DTO for health report processing
+[33m7def595[m chore(config): fix groupId, artifactId, java version and encoding in pom.xml
+[33m50e8054[m feat(bootstrap): add MonitoreoApplication entry point and 7 passing tests
+[33m32881f5[m feat(domain): add EstadoSalud, NodoFacturacion and EvaluadorSalud with configurable thresholds
+[33mbdc02de[m feat(domain): add EstadoSalud, NodoFacturacion and EvaluadorSalud with configurable thresholds
+[33m8c1876d[m docs: add development log with decisions, changes and known issues
+[33mb367852[m refactor: clean up residual billing folder, duplicate tests dir, and fix entry point location
+[33m35b9ff6[m docs(api): define mvp scope for regional health monitoring
+[33m3f127f5[m docs(api): define regional billing health monitoring contract
