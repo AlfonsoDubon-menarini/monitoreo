@@ -5,6 +5,7 @@ import com.monitoreo.facturacion.application.ports.input.ProcesarReporteSaludUse
 import com.monitoreo.facturacion.application.ports.output.RepositorioSaludPais;
 import com.monitoreo.facturacion.domain.model.EstadoSalud;
 import com.monitoreo.facturacion.domain.model.NodoFacturacion;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +27,7 @@ public class MonitoreoController {
 
     @PostMapping("/reportes-salud")
     public ResponseEntity<Map<String, Object>> recibirReporte(
-            @RequestBody ReporteSaludDTO dto) {
+            @Valid @RequestBody ReporteSaludDTO dto) {
 
         EstadoSalud estado = procesarReporte.procesar(dto);
 
