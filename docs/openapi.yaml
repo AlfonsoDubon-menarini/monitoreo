@@ -1,32 +1,12 @@
 openapi: 3.0.3
 info:
-  title: Central Monitoring System - Regional Billing
-  description: Monitoreo de salud de sistemas de facturación (CA & RD).
+  title: MVP Billing Health Monitor
   version: 1.0.0
 paths:
-  /systems/health:
-    get:
-      summary: Obtener el estado de salud de todos los nodos regionales
-      tags: [Monitoring]
-      responses:
-        '200':
-          description: Lista de estados por país
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SystemHealth'
-  /systems/{country}/report:
+  /api/v1/health-reports:
     post:
-      summary: Reportar métricas de salud desde un nodo regional
-      parameters:
-        - name: country
-          in: path
-          required: true
-          schema:
-            type: string
-            enum: [GT, SV, HN, NI, CR, PA, DO]
+      summary: Recibir reporte de salud de un nodo regional
+      tags: [Ingesta]
       requestBody:
         content:
           application/json:
@@ -34,21 +14,36 @@ paths:
               $ref: '#/components/schemas/HealthReport'
       responses:
         '202':
-          description: Reporte recibido
+          description: Reporte recibido y procesado
+
+  /api/v1/regional-status:
+    get:
+      summary: Obtener el estado actual de toda la región (CA + RD)
+      tags: [Consulta]
+      responses:
+        '200':
+          description: Listado de salud por país
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CountryHealth'
 
 components:
   schemas:
-    SystemHealth:
+    HealthReport:
+      type: object
+      required: [country, isTaxAuthorityUp, latencyMs, pendingDocs]
+      properties:
+        country: { type: string, enum: [GT, SV, HN, NI, CR, PA, DO] }
+        isTaxAuthorityUp: { type: boolean }
+        latencyMs: { type: integer }
+        pendingDocs: { type: integer }
+
+    CountryHealth:
       type: object
       properties:
         country: { type: string }
         status: { type: string, enum: [OK, WARN, CRITICAL] }
-        lastCheck: { type: string, format: date-time }
-    HealthReport:
-      type: object
-      required: [serviceName, status]
-      properties:
-        serviceName: { type: string, example: "FirmaDigital-Service" }
-        status: { type: string, enum: [UP, DOWN] }
-        latencyMs: { type: integer }
-        pendingDocuments: { type: integer }
+        lastUpdate: { type: string, format: date-time }
