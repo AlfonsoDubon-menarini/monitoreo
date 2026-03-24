@@ -1,4 +1,4 @@
-package com.monitoreo;
+package com.monitoreo.facturacion;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -7,5 +7,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 class MonitoreoApplicationTests {
 
 	@Test
-	void contextLoads() {}
+	void contextLoads() {
+	}
 }
