@@ -1,10 +1,10 @@
 package com.monitoreo.facturacion.infrastructure.adapters.rest;
 
 import com.monitoreo.facturacion.application.dtos.ReporteSaludDTO;
+import com.monitoreo.facturacion.application.dtos.ResumenRegionalDTO; // ◄ Nuevo import
 import com.monitoreo.facturacion.application.ports.input.ProcesarReporteSaludUseCase;
 import com.monitoreo.facturacion.application.ports.output.RepositorioSaludPais;
 import com.monitoreo.facturacion.domain.model.EstadoSalud;
-import com.monitoreo.facturacion.domain.model.NodoFacturacion;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +17,7 @@ import java.util.Map;
 public class MonitoreoController {
 
     private final ProcesarReporteSaludUseCase procesarReporte;
-    private final RepositorioSaludPais repositorio;
+    private final RepositorioSaludPais repositorio; // ◄ Seguimos usando exclusivamente el puerto
 
     public MonitoreoController(ProcesarReporteSaludUseCase procesarReporte,
                                RepositorioSaludPais repositorio) {
@@ -40,7 +40,6 @@ public class MonitoreoController {
 
     @GetMapping("/estado-regional")
     public ResponseEntity<List<Map<String, Object>>> obtenerEstadoRegional() {
-
         List<Map<String, Object>> respuesta = repositorio.buscarTodos()
                 .stream()
                 .map(nodo -> Map.<String, Object>of(
@@ -53,5 +52,13 @@ public class MonitoreoController {
                 .toList();
 
         return ResponseEntity.ok(respuesta);
+    }
+
+    // ──► LA NUEVA PIEZA DE CONSUMO OPTIMIZADO:
+    @GetMapping("/estado-regional/resumen")
+    public ResponseEntity<List<ResumenRegionalDTO>> obtenerResumenDashboard() {
+        // El controlador le pide el resumen al puerto agnóstico
+        List<ResumenRegionalDTO> resumen = repositorio.obtenerResumenRegional();
+        return ResponseEntity.ok(resumen);
     }
 }

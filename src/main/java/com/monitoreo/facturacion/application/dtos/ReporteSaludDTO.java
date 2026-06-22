@@ -1,5 +1,6 @@
 package com.monitoreo.facturacion.application.dtos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 
 public class ReporteSaludDTO {
@@ -9,14 +10,18 @@ public class ReporteSaludDTO {
             message = "País inválido. Valores permitidos: GT, SV, CR, PA, DO")
     private String pais;
 
+    // 🟢 Mapeo explícito al contrato OpenAPI
+    @JsonProperty("ente_tributario_activo")
     private boolean enteTributarioActivo;
 
     @Min(value = 0, message = "La latencia no puede ser negativa")
     @Max(value = 60000, message = "La latencia no puede superar 60,000ms")
+    @JsonProperty("latencia_ms")
     private int latenciaMs;
 
     @Min(value = 0, message = "Los documentos pendientes no pueden ser negativos")
     @Max(value = 100000, message = "Los documentos pendientes no pueden superar 100,000")
+    @JsonProperty("documentos_pendientes")
     private int documentosPendientes;
 
     public ReporteSaludDTO() {}
@@ -25,13 +30,13 @@ public class ReporteSaludDTO {
                            boolean enteTributarioActivo,
                            int latenciaMs,
                            int documentosPendientes) {
-        this.pais                 = pais;
+        this.pais               = pais;
         this.enteTributarioActivo = enteTributarioActivo;
         this.latenciaMs           = latenciaMs;
         this.documentosPendientes = documentosPendientes;
     }
 
-    public String getPais()                    { return pais; }
+    public String getPais()                 { return pais; }
     public boolean isEnteTributarioActivo()    { return enteTributarioActivo; }
     public int getLatenciaMs()                 { return latenciaMs; }
     public int getDocumentosPendientes()       { return documentosPendientes; }

@@ -28,9 +28,9 @@ class MonitoreoControllerTest {
                         .content("""
                         {
                           "pais": "GT",
-                          "enteTributarioActivo": true,
-                          "latenciaMs": 320,
-                          "documentosPendientes": 5
+                          "ente_tributario_activo": true,
+                          "latencia_ms": 320,
+                          "documentos_pendientes": 5
                         }
                         """))
                 .andExpect(status().isAccepted())
@@ -46,9 +46,9 @@ class MonitoreoControllerTest {
                         .content("""
                         {
                           "pais": "SV",
-                          "enteTributarioActivo": true,
-                          "latenciaMs": 750,
-                          "documentosPendientes": 5
+                          "ente_tributario_activo": true,
+                          "latencia_ms": 750,
+                          "documentos_pendientes": 5
                         }
                         """))
                 .andExpect(status().isAccepted())
@@ -62,16 +62,16 @@ class MonitoreoControllerTest {
                         .content("""
                         {
                           "pais": "DO",
-                          "enteTributarioActivo": false,
-                          "latenciaMs": 100,
-                          "documentosPendientes": 5
+                          "ente_tributario_activo": false,
+                          "latencia_ms": 100,
+                          "documentos_pendientes": 5
                         }
                         """))
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.estado_calculado").value("CRITICAL"));
     }
 
-    // ─── Validaciones ─────────────────────────────────────────────────────────
+    // ─── Validaciones ────────────────────────────────────────────────────────
 
     @Test
     void debeRetornar422_cuandoPaisEsInvalido() throws Exception {
@@ -80,9 +80,9 @@ class MonitoreoControllerTest {
                         .content("""
                         {
                           "pais": "HN",
-                          "enteTributarioActivo": true,
-                          "latenciaMs": 100,
-                          "documentosPendientes": 5
+                          "ente_tributario_activo": true,
+                          "latencia_ms": 100,
+                          "documentos_pendientes": 5
                         }
                         """))
                 .andExpect(status().isUnprocessableEntity())
@@ -97,9 +97,9 @@ class MonitoreoControllerTest {
                         .content("""
                         {
                           "pais": "CR",
-                          "enteTributarioActivo": true,
-                          "latenciaMs": -50,
-                          "documentosPendientes": 5
+                          "ente_tributario_activo": true,
+                          "latencia_ms": -50,
+                          "documentos_pendientes": 5
                         }
                         """))
                 .andExpect(status().isUnprocessableEntity())
@@ -113,9 +113,9 @@ class MonitoreoControllerTest {
                         .content("""
                         {
                           "pais": "GT"
-                          "enteTributarioActivo": true
+                          "ente_tributario_activo": true
                         }
-                        """))
+                        """)) // 👈 Sin coma aquí para romper la sintaxis del JSON adrede
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.codigo").value("PAYLOAD_INVALIDO"));
     }
@@ -136,9 +136,9 @@ class MonitoreoControllerTest {
                         .content("""
                         {
                           "pais": "PA",
-                          "enteTributarioActivo": true,
-                          "latenciaMs": 400,
-                          "documentosPendientes": 10
+                          "ente_tributario_activo": true,
+                          "latencia_ms": 400,
+                          "documentos_pendientes": 10
                         }
                         """))
                 .andExpect(status().isAccepted());

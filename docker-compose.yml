@@ -1,0 +1,11 @@
+services:
+  monitoreo-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: e-invoice-monitor:latest
+    container_name: monitoreo-app
+    ports:
+      - "8081:8080" # 👈 Evita conflicto con el 8080 de e-invoice-app
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
