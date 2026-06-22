@@ -1,23 +1,26 @@
 package com.monitoreo.facturacion.infrastructure.adapters.rest;
 
 import com.monitoreo.facturacion.application.dtos.ReporteSaludDTO;
-import com.monitoreo.facturacion.application.dtos.ResumenRegionalDTO; // ◄ Nuevo import
+import com.monitoreo.facturacion.application.dtos.ResumenRegionalDTO;
 import com.monitoreo.facturacion.application.ports.input.ProcesarReporteSaludUseCase;
 import com.monitoreo.facturacion.application.ports.output.RepositorioSaludPais;
 import com.monitoreo.facturacion.domain.model.EstadoSalud;
 import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat; // ◄ NUEVO IMPORT
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime; // ◄ NUEVO IMPORT
 import java.util.List;
 import java.util.Map;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/v1")
 public class MonitoreoController {
 
     private final ProcesarReporteSaludUseCase procesarReporte;
-    private final RepositorioSaludPais repositorio; // ◄ Seguimos usando exclusivamente el puerto
+    private final RepositorioSaludPais repositorio;
 
     public MonitoreoController(ProcesarReporteSaludUseCase procesarReporte,
                                RepositorioSaludPais repositorio) {
@@ -54,11 +57,14 @@ public class MonitoreoController {
         return ResponseEntity.ok(respuesta);
     }
 
-    // ──► LA NUEVA PIEZA DE CONSUMO OPTIMIZADO:
+    // ──► MÉTODO MODIFICADO CON SOPORTE PARA PARÁMETROS DE FECHA OPTIONALES
     @GetMapping("/estado-regional/resumen")
-    public ResponseEntity<List<ResumenRegionalDTO>> obtenerResumenDashboard() {
-        // El controlador le pide el resumen al puerto agnóstico
-        List<ResumenRegionalDTO> resumen = repositorio.obtenerResumenRegional();
+    public ResponseEntity<List<ResumenRegionalDTO>> obtenerResumenDashboard(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaFin) {
+
+        // Pasamos los filtros al puerto de salida (salida agnóstica de la arquitectura hexagonal)
+        List<ResumenRegionalDTO> resumen = repositorio.obtenerResumenRegionalPorFechas(fechaInicio, fechaFin);
         return ResponseEntity.ok(resumen);
     }
 }

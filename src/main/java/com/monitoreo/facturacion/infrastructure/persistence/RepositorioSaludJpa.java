@@ -1,10 +1,11 @@
-package com.monitoreo.facturacion.infrastructure.persistence; // ◄ ¡ESTA LÍNEA DEBE DECIR PERSISTENCE!
+package com.monitoreo.facturacion.infrastructure.persistence;
 
 import com.monitoreo.facturacion.application.dtos.ResumenRegionalDTO;
 import com.monitoreo.facturacion.application.ports.output.RepositorioSaludPais;
 import com.monitoreo.facturacion.domain.model.NodoFacturacion;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,9 +45,11 @@ public class RepositorioSaludJpa implements RepositorioSaludPais {
                 .toList();
     }
 
+    // ✔️ EL MÉTODO VIEJO RECLAMADO SE ELIMINÓ DE AQUÍ PORQUE YA NO ESTÁ EN LA INTERFAZ
+
     @Override
-    public List<ResumenRegionalDTO> obtenerResumenRegional() {
-        return jpaRepository.obtenerResumenPorPais();
+    public List<ResumenRegionalDTO> obtenerResumenRegionalPorFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        return jpaRepository.obtenerResumenRegionalPorFechas(fechaInicio, fechaFin);
     }
 
     private NodoFacturacion toDomain(NodoFacturacionEntidad e) {

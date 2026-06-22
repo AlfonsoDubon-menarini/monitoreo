@@ -1,0 +1,69 @@
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <div>
+      <h1>E-Invoice Regional Monitor</h1>
+      <button class="btn-live" [class.paused]="!isLive()" (click)="toggleLiveStream()">
+        {{ isLive() ? '● LIVE STREAMING' : '⏸️ TELEMETRY PAUSED' }}
+      </button>
+    </div>
+    <div class="global-counter">
+      <span class="counter-label">Processed (Filtered View)</span>
+      <span class="counter-value">{{ totalGlobal() | number }}</span>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="filter-section">
+      <span class="toolbar-label">Filtrar Región:</span>
+      <div class="button-group">
+        <button [class.active]="filtroPais() === 'TODOS'" (click)="cambiarFiltro('TODOS')">Ver Todo</button>
+        <button [class.active]="filtroPais() === 'GT'" (click)="cambiarFiltro('GT')">Guatemala</button>
+        <button [class.active]="filtroPais() === 'SV'" (click)="cambiarFiltro('SV')">El Salvador</button>
+        <button [class.active]="filtroPais() === 'CR'" (click)="cambiarFiltro('CR')">Costa Rica</button>
+        <button [class.active]="filtroPais() === 'PA'" (click)="cambiarFiltro('PA')">Panamá</button>
+        <button [class.active]="filtroPais() === 'DO'" (click)="cambiarFiltro('DO')">Rep. Dominicana</button>
+      </div>
+    </div>
+
+    <div class="date-section">
+      <span class="toolbar-label">Rango Histórico:</span>
+      <input type="datetime-local" [value]="fechaInicio()" (input)="fechaInicio.set($any($event.target).value)">
+      <input type="datetime-local" [value]="fechaFin()" (input)="fechaFin.set($any($event.target).value)">
+
+      <button class="btn-search" (click)="consultarHistorico()">Buscar</button>
+
+      @if (fechaInicio() || fechaFin()) {
+        <button class="btn-clear" (click)="limpiarFechas()">✕ Limpiar</button>
+      }
+    </div>
+  </div>
+
+  <div class="cards-grid">
+    @for (nodo of nodosFiltrados(); track nodo.pais) {
+      <div class="card" [ngClass]="obtenerClaseEstado(nodo.latenciaPromedio)">
+        <div class="card-header">
+          <span class="flag-icon">📍</span>
+          <h2>Nodo {{ nodo.pais }}</h2>
+        </div>
+        <div class="card-body">
+          <div class="metric">
+            <span class="label">Processed</span>
+            <span class="value">{{ nodo.totalProcesado | number }}</span>
+          </div>
+          <div class="metric">
+            <span class="label">Avg Latency</span>
+            <span class="value">{{ nodo.latenciaPromedio | number:'1.1-2' }} ms</span>
+          </div>
+          <div class="metric" [class.alert]="nodo.totalPendientes > 0">
+            <span class="label">Pending Docs</span>
+            <span class="value">{{ nodo.totalPendientes }}</span>
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-state">
+        <p>No telemetry data received for this selection. Run k6 load test or adjust dates... ⏳</p>
+      </div>
+    }
+  </div>
+</div>
