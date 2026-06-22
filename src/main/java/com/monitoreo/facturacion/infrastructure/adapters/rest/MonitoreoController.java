@@ -14,7 +14,7 @@ import java.time.LocalDateTime; // ◄ NUEVO IMPORT
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = "http://localhost:4200")
+
 @RestController
 @RequestMapping("/api/v1")
 public class MonitoreoController {

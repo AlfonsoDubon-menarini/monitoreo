@@ -7,7 +7,7 @@ import { ResumenRegional } from './resumen-regional.model';
   providedIn: 'root'
 })
 export class RegionalMonitorService {
-  private apiUrl = 'http://localhost:8081/api/v1/estado-regional/resumen';
+  private apiUrl = 'http://localhost/api/v1/estado-regional/resumen';
 
   constructor(private http: HttpClient) {}
 
